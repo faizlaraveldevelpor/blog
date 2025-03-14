@@ -166,7 +166,6 @@ export let getblog=async (req,res)=>{
   
   client.on('error', err => console.log('Redis Client Error', err));
 
-
   await client.connect();
 
   // let get_blog=await (await blog_model.find().sort({createdAt:-1}).limit(perpage_result).populate({path:"comments",populate:{path:"user"}}))
