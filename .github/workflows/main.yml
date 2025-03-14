@@ -96,3 +96,6 @@ jobs:
                sudo docker pull faizansari2025/blog-server
                sudo docker compose up -d
                '
+               
+               
+            
