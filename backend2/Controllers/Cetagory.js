@@ -1,5 +1,5 @@
 import {cetagory_model} from "../Modules/Cetagory.js"
-
+import {createClient} from 'redis'
 export let create_cetagory=async(req,res)=>{
 let {cetagory}=req.body
 console.log(req.body); 
@@ -14,8 +14,51 @@ cetagory:cetagory})
 res.status(200).json({success:true,"message":"cetagory created successfully"})
 }
 export let get_cetagory=async(req,res)=>{
-    let getCetagory=await cetagory_model.find().populate({path:"blogs"})
-    res.status(200).json({success:true,"message":"cetagory get successfully",getCetagory})
+
+    const client = createClient({
+          username: 'default',
+          password: 'hDSDep7lIuP6v655YpkE95i8xD8lPzOW',
+          socket: {
+              host: 'redis-17748.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
+              port: 17748
+          }
+      });
+      
+      
+      client.on('error', err => console.log('Redis Client Error', err));
+    
+    
+      await client.connect();
+    
+      // let get_blog=await (await blog_model.find().sort({createdAt:-1}).limit(perpage_result).populate({path:"comments",populate:{path:"user"}}))
+      //    //  await client.set('foo', JSON.stringify(get_blog));
+      //      res.status(200).json({success:true,"message":"blog get successfully",get_blog})
+      
+       const result = await client.get('foo'); 
+       
+      if (result) {
+      
+         console.log("else mai gaya");
+         let getCetagory=JSON.parse(result)
+        return res.status(200).json({success:true,"message":"blog get successfully",getCetagory})
+      
+      
+         
+      }
+      
+         console.log("if mai gaya");
+         
+     
+        let getCetagory=await cetagory_model.find().populate({path:"blogs"})
+        
+         let string=JSON.stringify(getCetagory)
+        
+           await client.set('foo', string);
+           res.status(200).json({success:true,"message":"cetagory get successfully",getCetagory})
+    
+
+
+   
 }
 export let delete_cetagory=async(req,res)=>{
 let {cetagory}=req.params
