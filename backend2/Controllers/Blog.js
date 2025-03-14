@@ -5,6 +5,7 @@ import { blog_model }from "../Modules/BlogModel.js"
 import { user_model } from"../Modules/UserModel.js"
 import cloudinary from'../Config/Coludinery.js'
 import {cetagory_model} from "../Modules/Cetagory.js" 
+import { createClient } from 'redis';
 
  export let create_blog=async(req,res)=>{
      let data=JSON.parse(req.body.content)
@@ -153,9 +154,50 @@ export let getblog=async (req,res)=>{
    let perpage_result=10*current_page
 
 
-let get_blog=await (await blog_model.find().sort({createdAt:-1}).limit(perpage_result).populate({path:"comments",populate:{path:"user"}}))
+   const client = createClient({
+      username: 'default',
+      password: 'hDSDep7lIuP6v655YpkE95i8xD8lPzOW',
+      socket: {
+          host: 'redis-17748.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
+          port: 17748
+      }
+  });
+  
+  
+  client.on('error', err => console.log('Redis Client Error', err));
 
-res.status(200).json({success:true,"message":"blog get successfully",get_blog})
+
+  await client.connect();
+
+  // let get_blog=await (await blog_model.find().sort({createdAt:-1}).limit(perpage_result).populate({path:"comments",populate:{path:"user"}}))
+  //    //  await client.set('foo', JSON.stringify(get_blog));
+  //      res.status(200).json({success:true,"message":"blog get successfully",get_blog})
+  
+   const result = await client.get('foo'); 
+   
+  if (result) {
+  
+     console.log("else mai gaya");
+     let get_blog=JSON.parse(result)
+    return res.status(200).json({success:true,"message":"blog get successfully",get_blog})
+  
+  
+     
+  }
+  
+     console.log("if mai gaya");
+     
+     let get_blog=await (await blog_model.find().sort({createdAt:-1}).limit(perpage_result).populate({path:"comments",populate:{path:"user"}}))
+     let string=JSON.stringify(get_blog)
+       await client.set('foo', string);
+       res.status(200).json({success:true,"message":"blog get successfully",get_blog})
+
+
+
+
+// let get_blog=await (await blog_model.find().sort({createdAt:-1}).limit(perpage_result).populate({path:"comments",populate:{path:"user"}}))
+
+// res.status(200).json({success:true,"message":"blog get successfully",get_blog})
 }
 export let update_blog=async (req,res)=>{
    try {
