@@ -1,1 +1,98 @@
+name : blog workfllow
 
+
+on:
+ push:
+   branches:
+    - main
+
+jobs:
+  check-changes:
+   runs-on: ubuntu-latest
+  #  outputs:
+  #    client_changed: ${{ steps.client_changed.outputes.client}}
+  #    server_changed: ${{ steps.server_changed.outputes.server}}
+   steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for chenges in client
+      id:   client_changed
+      uses: dorny/paths-filter@v3
+      with:
+       filters: |
+         frontend:
+           - 'frontend/**'
+       
+
+    - name: Check for chenges in server
+      id:   server_changed
+      uses: dorny/paths-filter@v3
+      with:
+       filters: |
+         backend2:
+           - 'backend2/**'
+       
+  client:
+    needs: check-changes
+    runs-on: ubuntu-latest
+    # if: needs.check-changes.outputes.client_changed =='true'
+    steps:
+      
+     - name: Checkout code
+       uses: actions/checkout@v4
+
+     - name: login docker hub
+       uses: docker/login-action@v3
+       with: 
+          username: faizansari2025
+          password: Bandarfaiz
+     - name: create a docker image
+       run: |
+        cd frontend
+        docker build -t faizansari2025/blog-client . 
+        docker push faizansari2025/blog-client
+        cd ../
+        sudo apt-get update -y
+             sudo apt-get install sshpass
+             sudo sshpass -p Bandarfaiz1122@ ssh -o StrictHostKeyChecking=no root@srv718425.hstgr.cloud '
+             cd /root/blog
+              
+             sudo docker pull faizansari2025/blog-client
+             sudo docker compose up -d
+             '
+              
+
+     
+         
+                  
+
+
+  server:
+          needs: check-changes
+          runs-on: ubuntu-latest
+          # if: needs.check-changes.outputes.server_changed =='true'
+          steps:
+            
+            - name: Checkout code
+              uses: actions/checkout@v4
+            - name: docker login
+              uses: docker/login-action@v3
+              with:
+                 username: faizansari2025
+                 password: Bandarfaiz
+
+            - name: build docker image
+              run: |
+               cd backend2
+               docker build -t faizansari2025/blog-server .
+               docker push faizansari2025/blog-server
+               cd ../
+               sudo apt-get update -y
+               sudo apt-get install sshpass
+               sudo sshpass -p Bandarfaiz1122@ ssh -o StrictHostKeyChecking=no root@srv718425.hstgr.cloud '
+               cd /root/blog
+               
+               sudo docker pull faizansari2025/blog-server
+               sudo docker compose up -d
+               '

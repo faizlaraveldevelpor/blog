@@ -5,8 +5,7 @@ import { blog_model }from "../Modules/BlogModel.js"
 import { user_model } from"../Modules/UserModel.js"
 import cloudinary from'../Config/Coludinery.js'
 import {cetagory_model} from "../Modules/Cetagory.js" 
-import { createClient } from 'redis';
-
+import {createClient} from 'redis'
  export let create_blog=async(req,res)=>{
      let data=JSON.parse(req.body.content)
    //   let image_index=0
@@ -154,6 +153,8 @@ export let getblog=async (req,res)=>{
    let perpage_result=10*current_page
 
 
+
+
    const client = createClient({
       username: 'default',
       password: 'hDSDep7lIuP6v655YpkE95i8xD8lPzOW',
@@ -165,6 +166,7 @@ export let getblog=async (req,res)=>{
   
   
   client.on('error', err => console.log('Redis Client Error', err));
+
 
   await client.connect();
 
@@ -190,6 +192,7 @@ export let getblog=async (req,res)=>{
      let string=JSON.stringify(get_blog)
        await client.set('foo', string);
        res.status(200).json({success:true,"message":"blog get successfully",get_blog})
+
 
 
 
