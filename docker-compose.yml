@@ -45,7 +45,11 @@ services:
     volumes:
       - data:/data/db
       - config:/data/configdb
-
+ redis:
+     image: redis/redis-stack
+     container_name: redis-server
+     ports:
+      - "17748:17748"  # Expose Redis on port 6379
 
 volumes:
   data:
