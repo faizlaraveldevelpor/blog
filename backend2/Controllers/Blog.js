@@ -175,6 +175,7 @@ export let getblog=async (req,res)=>{
   //    //  await client.set('foo', JSON.stringify(get_blog));
   //      res.status(200).json({success:true,"message":"blog get successfully",get_blog})
   
+  
    const result = await client.get('foo'); 
    
   if (result) {
@@ -192,6 +193,7 @@ export let getblog=async (req,res)=>{
      let get_blog=await (await blog_model.find().sort({createdAt:-1}).limit(perpage_result).populate({path:"comments",populate:{path:"user"}}))
      let string=JSON.stringify(get_blog)
        await client.set('foo', string);
+       await client.expire("foo",600)
        res.status(200).json({success:true,"message":"blog get successfully",get_blog})
 
 
