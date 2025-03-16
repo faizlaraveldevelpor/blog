@@ -156,12 +156,13 @@ export let getblog=async (req,res)=>{
 
 
    const client = createClient({
-      username: 'default',
-      password: 'hDSDep7lIuP6v655YpkE95i8xD8lPzOW',
-      socket: {
-          host: 'redis-17748.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
-          port: 17748
-      }
+      url:'redis://default:hDSDep7lIuP6v655YpkE95i8xD8lPzOW@redis-17748.crce182.ap-south-1-1.ec2.redns.redis-cloud.com:17748',
+      // username: 'default',
+      // password: 'hDSDep7lIuP6v655YpkE95i8xD8lPzOW',
+      // socket: {
+      //     host: 'redis-17748.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
+      //     port: 17748
+      // }
   });
   
   
