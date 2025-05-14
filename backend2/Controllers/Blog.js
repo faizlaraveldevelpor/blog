@@ -155,45 +155,14 @@ export let getblog=async (req,res)=>{
 
 
 
-   const client = createClient({
-      url:'redis://default:hDSDep7lIuP6v655YpkE95i8xD8lPzOW@redis-17748.crce182.ap-south-1-1.ec2.redns.redis-cloud.com:17748',
-      // username: 'default',
-      // password: 'hDSDep7lIuP6v655YpkE95i8xD8lPzOW',
-      // socket: {
-      //     host: 'redis-17748.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
-      //     port: 17748
-      // }
-  });
-  
-  
-  client.on('error', err => console.log('Redis Client Error', err));
 
-
-  await client.connect();
-
-  // let get_blog=await (await blog_model.find().sort({createdAt:-1}).limit(perpage_result).populate({path:"comments",populate:{path:"user"}}))
-  //    //  await client.set('foo', JSON.stringify(get_blog));
-  //      res.status(200).json({success:true,"message":"blog get successfully",get_blog})
-  
-  
-   const result = await client.get('foo'); 
    
-  if (result) {
+ 
   
-     console.log("else mai gaya");
-     let get_blog=JSON.parse(result)
-    return res.status(200).json({success:true,"message":"blog get successfully",get_blog})
-  
-  
-     
-  }
-  
-     console.log("if mai gaya");
+    
      
      let get_blog=await (await blog_model.find().sort({createdAt:-1}).limit(perpage_result).populate({path:"comments",populate:{path:"user"}}))
-     let string=JSON.stringify(get_blog)
-       await client.set('foo', string);
-       await client.expire("foo",600)
+    
        res.status(200).json({success:true,"message":"blog get successfully",get_blog})
 
 
