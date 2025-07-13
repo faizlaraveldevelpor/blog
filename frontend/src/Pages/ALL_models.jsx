@@ -69,7 +69,7 @@ function Layout() {
             <Comment/>
             </div>
             </div>
-            <div className={`flex fixed  top-[48.4px] bottom-20 z-50 h-screen md:left-[90%] lg:left-[94%] left-[78%]    w-fit   ${User_profile_state?"translate-x-0 duration-300":"translate-x-[120px] duration-300  "} `}>
+            <div className={`flex fixed  top-[48.4px] bottom-20 z-50 h-screen md:left-[90%] lg:left-[100%] left-[78%]    w-fit   ${User_profile_state?"translate-x-0 duration-300":"translate-x-[120px] duration-300  "} `}>
             <div className="overflow-scroll cusSc ">
             <User_profile/>
             </div>

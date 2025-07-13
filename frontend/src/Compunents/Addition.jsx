@@ -18,7 +18,7 @@ function Addition() {
        <div className="flex  md:flex-row flex-col mt-6   ">
        <Link to={`/single/blog/${blog_data_useslactor?.get_blog[0]?._id}/${blog_data_useslactor?.get_blog[0]?.Slug?blog_data_useslactor?.get_blog[0]?.Slug:"Slug"}`}>
        <div className=" ">
-             <span className=""><img src={blog_data_useslactor?.get_blog[0]?.image} alt="" className="w-[800px] lg:h-[500px] md:h-[400px]    " /></span>
+             <span className="flex justify-center"><img src={blog_data_useslactor?.get_blog[0]?.image} alt="" className="w-[800px]  lg:h-[500px] md:h-[400px]    " /></span>
         <h4 className="text-[20px] font-semibold text-center mt-1">{blog_data_useslactor?.get_blog[0]?.title.substring(0,200)}...</h4>
     
         

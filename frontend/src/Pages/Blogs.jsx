@@ -6,7 +6,7 @@ function Blogs() {
   return (
 <>
 
-<div className="max-w-[1300px]">
+<div className=" w-full flex flex-col items-center ">
 <Helmet>
      <title>blog.mfaizansari.tech/</title>
      <meta name="description" content="faiz ansari description" />

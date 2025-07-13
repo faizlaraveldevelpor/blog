@@ -55,7 +55,7 @@ let dispacth=useDispatch()
       data?.blog_get?.title}
       </h1>
       <div className="flex justify-between items-center mt-6 px-8 md:px-0 w-full ">
-      <div className="">
+      <div className={`${login_user?.user?.image?"block":"hidden"}`}>
       <img src={login_user?.user?.image} alt="" className="w-[50px] rounded-full h-[50px]" />
       <h5 className="font-semibold">{login_user?.user?.name}</h5>
       
