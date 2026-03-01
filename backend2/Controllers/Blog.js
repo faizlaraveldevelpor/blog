@@ -7,7 +7,6 @@ import cloudinary from'../Config/Coludinery.js'
 import {cetagory_model} from "../Modules/Cetagory.js" 
 import {createClient} from 'redis'
  export let create_blog=async(req,res)=>{
-     let data=JSON.parse(req.body.content)
    //   let image_index=0
    // for (let i = 0; i < data.blocks.length; i++) {
     
@@ -54,41 +53,35 @@ import {createClient} from 'redis'
 
 try {
    let {title,content,cetagory,subcetagory,metaTitle,metaDescription,metaSlug}=req.body
-let {image}=req.files
+   if (!req.files || !req.files.image) {
+      return res.status(400).json({ success: false, message: "enter your image" })
+   }
+   let {image}=req.files
 
-   
-   
+   if (!req.body.content) {
+      return res.status(400).json({ success: false, message: "content is required" })
+   }
+  let data
+  try {
+    data = JSON.parse(req.body.content)
+  } catch (e) {
+    return res.status(400).json({ success: false, message: "Invalid content format" })
+  }
 
+   if(!title) return res.status(400).json({success:false,"message":"please enter all the fields"})
+   if(!cetagory) return res.status(400).json({success:false,"message":"please enter all the cetagory"})
+   if(!subcetagory) return res.status(400).json({success:false,"message":"please enter all the subcetagory"})
+   if (!data.blocks || data.blocks.length === 0) return res.status(400).json({ success: false, "message": "enter your blog content" })
+   
+   let image_index = 0
+   const contentImages = req.files.images || []
 
-
-  let data=JSON.parse(req.body.content)
- 
- 
- 
-//   console.log(req.files.image[0].buffer);
-  
-
-   
-   if(!title)return res.status(200).json({success:false,"message":"please enter all the fields"})
-   if(!cetagory)return res.status(200).json({success:false,"message":"please enter all the cetagory"})
-   if(!subcetagory)return res.status(200).json({success:false,"message":"please enter all the subcetagory"})
-   if(!image)return res.status(200).json({success:false,"message":"enter your image"})
-   if (data.blocks.length==0) return res.status(200).json({success:false,"message":"enter your blog content"})
-   
-   
-         
-      
-       
-   let image_index=0 
-for (let i = 0; i < data.blocks.length; i++) {
- 
-   
-   // console.log(data.blocks[image_index].data.file={
-   //    secure_ur:"faiz ansari"
-   // });
-  
+   for (let i = 0; i < data.blocks.length; i++) {
    if(data.blocks[i].type=="Image"){
- let compress =await sharp(req.files.images[image_index].buffer).webp({quality:80}).toBuffer()
+     if (!contentImages[image_index]) {
+        return res.status(400).json({ success: false, message: "Missing image for content block" })
+     }
+ let compress =await sharp(contentImages[image_index].buffer).webp({quality:80}).toBuffer()
   let urls= `data:image/jpg;base64,${compress.toString("base64")}`
 
   let result=  await cloudinary.uploader.upload(urls)
@@ -98,23 +91,10 @@ for (let i = 0; i < data.blocks.length; i++) {
    public_id:result.public_id
 }
 
-
 image_index++
- 
-
-let time=new Date()
-let hours=time.getHours()
-let minutes=time.getMinutes()
-
-
-  
-
-
-
    }
-   
-
   }
+
   let compress=await sharp(req.files.image[0].buffer).webp({quality:80}).toBuffer()
   let single_image_result=  await cloudinary.uploader.upload(`data:image/jpg;base64,${compress.toString("base64")}`)
   let create_blog=await blog_model.create({
@@ -130,8 +110,6 @@ let minutes=time.getMinutes()
    Slug:metaSlug
 })
 
-
-
   await cetagory_model.findOneAndUpdate({cetagory:cetagory},{$push:{blogs:create_blog._id}},{new:true})
 
 await user_model.findByIdAndUpdate(req.user,{$push:{blogs:create_blog._id}},{new:true})
@@ -139,8 +117,8 @@ res.status(200).json({success:true,"message":"blog created successfully",create_
       
 
 }catch(eror){
-console.log(eror);
-
+  console.log(eror)
+  return res.status(400).json({ success: false, message: eror?.message || "Blog create failed" })
 }
 }
 export let getblog=async (req,res)=>{
@@ -333,7 +311,9 @@ if (get.content[0]?.blocks!==null) {
    } 
 export let get_single_blog=async(req,res)=>{
 let {id}=req.params
-let blog_get=await blog_model.findById(id).populate({path:"comments" ,populate:{path:"user"}})
+let blog_get=await blog_model.findById(id)
+  .populate("user")
+  .populate({path:"comments",populate:{path:"user"}})
 res.status(200).json({success:true,"message":"single blog get successfully",blog_get})
 }
 export let like=async(req,res)=>{

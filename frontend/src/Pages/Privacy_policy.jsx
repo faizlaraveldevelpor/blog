@@ -3,9 +3,10 @@ import { useGetPrivacy_ApiQuery } from "../Redux/Api"
 function Privacy_policy() {
   let {data}=useGetPrivacy_ApiQuery()
   return (
-    <div className="flex flex-col items-center mb-4">
-      <div className="md:w-[65%] px-5 ">
-        <h3 className="text-center mt-8 font-bold text-[30px]">Privacy policy</h3>
+    <div className="min-h-screen bg-brand-surface py-8 md:py-12">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <article className="bg-white rounded-xl shadow-card p-6 md:p-10">
+          <h1 className="text-center text-2xl md:text-3xl font-bold text-brand-primary font-merriweather mb-10">Privacy Policy</h1>
       <div className="  text-start flex flex-col items-center md:px-20 px-10 leading-8     mt-10    ">
   {data&&
  
@@ -207,8 +208,9 @@ if(data.type=='table'){
     
     
   </div>   
+        </article>
+      </div>
     </div>
-  </div>
   )
 }
 

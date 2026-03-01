@@ -7,16 +7,12 @@ let Auth=async(req,res,next)=>{
     
   try {
     let verify=await JWT.verify(req.cookies.Token,process.env.TOKEN)
-    
-    
-   req.user=verify.id
-   
-   
+    req.user=verify.id
+    next()
   } catch (error) {
-    console.log(error);
-    
+    console.log(error)
+    return res.status(401).json({ success: false, message: "Invalid or expired token. Please login again." })
   }
-  next()
 
 }
 

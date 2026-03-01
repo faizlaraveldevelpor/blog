@@ -118,7 +118,7 @@ if (spilit[0]!=="sub") {
                           </div>
                          </div> */}
                           <div className="md:block hidden">
-                          <div className="flex gap-12  mb-20  ">
+                          <div className="flex gap-6 mb-8">
                         <Link to={`/single/blog/${filter_data[3]?._id}/${filter_data[3]?.Slug?filter_data[3]?.Slug:"Slug"}`}>  <div className=" border lg:w-[300px] md:w-[150px] lg:h-[200px]  md:h-[100px] ">
                               <span className="break-all"> <img src={filter_data[3]?.image} alt="" className="  w-full h-full " /></span>
                               <h3 className=" ml-4 text-[16px] font-semibold">{filter_data[3]?.title.substring(0,50)}</h3>
@@ -173,40 +173,42 @@ if (spilit[0]!=="sub") {
               
                 }
               </div>
-<div className="flex md:flex-wrap md:justify-center md:items-center md:gap-x-10 items-center mt-12 px-10    overflow-scroll md:overflow-hidden">
+<div className="flex md:flex-wrap md:justify-center md:items-stretch gap-6 mt-12 px-6 md:px-10 overflow-x-auto md:overflow-visible pb-4">
 
 {
   
   slice&&
   slice.map((data,i)=>{
+    const imgSrc = Array.isArray(data.image) ? data.image[0] : data.image
     return(
-      <>
-      <div key={i} className="  ">
-       
-      <div className="  mt-7   ">
-      <div className=" mb-10 pr-2   ">
-       <Link to={`/single/blog/${data._id}/${data?.Slug?data?.Slug:"Slug"}`}>
-       <span className="">
-       <img src={data.image[0]} alt="" className="max-w-[200px] max-h-[100px]  " />
-       </span>
-        <span>
-          <h3 className="mt-5 font-bold text-[15px]  mb-5 border-b-2 pb-5 ">{data.title.substring(0,50)+".."}</h3>
-         </span>
-       </Link>
-       
-        </div>
-      
-      </div>
-      
-      </div>
-      
-      </>
+      <Link 
+        key={data._id||i} 
+        to={`/single/blog/${data._id}/${data?.Slug?data?.Slug:"Slug"}`} 
+        className="flex-shrink-0 w-[260px] sm:w-[280px] group"
+      >
+        <article className="h-full overflow-hidden bg-white rounded-xl shadow-md hover:shadow-xl border border-slate-100 transition-all duration-300">
+          <div className="relative aspect-[16/10] overflow-hidden">
+            <img src={imgSrc} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            {data.cetagory && (
+              <span className="absolute top-2 left-2 px-2 py-0.5 bg-teal-600 text-white text-xs font-medium rounded-md">
+                {data.cetagory}
+              </span>
+            )}
+          </div>
+          <div className="p-4">
+            <h3 className="font-semibold text-slate-800 text-[15px] line-clamp-2 group-hover:text-teal-700 transition-colors">
+              {data.title?.substring(0,50)}{data.title?.length > 50 && "..."}
+            </h3>
+          </div>
+        </article>
+      </Link>
     )
   })
  }
 
 </div>
-<div className="flex justify-center"><button className="bg-black text-white w-[120px] my-3 h-8 rounded-md cursor-pointer" onClick={()=>setcurrent_page((perv)=>perv+1)}>Show more</button></div>
+<div className="flex justify-center"><button className="bg-teal-600 hover:bg-teal-700 text-white w-[140px] my-6 h-11 rounded-xl font-semibold cursor-pointer transition-colors shadow-lg shadow-teal-900/20" onClick={()=>setcurrent_page((perv)=>perv+1)}>Show more</button></div>
     </div>
   )
 }else{
@@ -240,7 +242,7 @@ if (spilit[0]!=="sub") {
                          </span>
                        </Link>
                        <div className="md:block hidden">
-                          <div className="flex gap-12  mb-20  ">
+                          <div className="flex gap-6 mb-8">
                         <Link to={`/single/blog/${filter_data[3]?._id}/${filter_data[3]?.Slug?filter_data[3]?.Slug:"Slug"}`}>  <div className=" border lg:w-[300px] md:w-[150px] lg:h-[200px]  md:h-[100px] ">
                               <span className="break-all"> <img src={filter_data[3]?.image} alt="" className="  w-full h-full " /></span>
                               <h3 className=" ml-4 text-[16px] font-semibold">{filter_data[3]?.title.substring(0,50)}</h3>
@@ -286,40 +288,41 @@ if (spilit[0]!=="sub") {
               
                 }
               </div>
-<div className="flex md:flex-wrap md:justify-center md:items-center md:gap-x-10 items-center mt-12 px-10    overflow-scroll md:overflow-hidden">
+<div className="flex md:flex-wrap md:justify-center md:items-stretch gap-6 mt-12 px-6 md:px-10 overflow-x-auto md:overflow-visible pb-4">
 {
   slice&&
   slice.map((data,i)=>{
+    const imgSrc = Array.isArray(data.image) ? data.image[0] : data.image
     return(
-      <>
-      <div key={i} className="  ">
-       
-      <div className="  mt-7   ">
-      <div className=" mb-10 pr-2   ">
-       <Link to={`/single/blog/${data._id}/${data?.Slug?data?.Slug:"Slug"}`}>
-       <span className="">
-        
-       <img src={data.image[0]} alt="" className="max-w-[200px] max-h-[100px]  " />
-       </span>
-        <span>
-          <h3 className="mt-5 font-bold text-[15px]  mb-5 border-b-2 pb-5 ">{data.title.substring(0,50)+".."}</h3>
-         </span>
-       </Link>
-       
-        </div>
-      
-      </div>
-      
-      </div>
-      
-      </>
+      <Link 
+        key={data._id||i} 
+        to={`/single/blog/${data._id}/${data?.Slug?data?.Slug:"Slug"}`} 
+        className="flex-shrink-0 w-[260px] sm:w-[280px] group"
+      >
+        <article className="h-full overflow-hidden bg-white rounded-xl shadow-md hover:shadow-xl border border-slate-100 transition-all duration-300">
+          <div className="relative aspect-[16/10] overflow-hidden">
+            <img src={imgSrc} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            {data.cetagory && (
+              <span className="absolute top-2 left-2 px-2 py-0.5 bg-teal-600 text-white text-xs font-medium rounded-md">
+                {data.cetagory}
+              </span>
+            )}
+          </div>
+          <div className="p-4">
+            <h3 className="font-semibold text-slate-800 text-[15px] line-clamp-2 group-hover:text-teal-700 transition-colors">
+              {data.title?.substring(0,50)}{data.title?.length > 50 && "..."}
+            </h3>
+          </div>
+        </article>
+      </Link>
     )
   })
   
  }
 
 </div>
-<div className="flex justify-center "><button className="bg-black text-white w-[120px] my-3 h-8 rounded-md cursor-pointer" onClick={()=>setcurrent_page((perv)=>perv+1)}>Show more</button></div>
+<div className="flex justify-center"><button className="bg-teal-600 hover:bg-teal-700 text-white w-[140px] my-6 h-11 rounded-xl font-semibold cursor-pointer transition-colors shadow-lg shadow-teal-900/20" onClick={()=>setcurrent_page((perv)=>perv+1)}>Show more</button></div>
 
     </div>
   )

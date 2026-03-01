@@ -8,9 +8,18 @@ import { create_blog, delete_blog, draft_blog, get_draft, get_single_blog, getbl
 import { create_comment, delete_comment } from "../Controllers/Comment.js"
 let blog_routes=express.Router()
 let storage=multer.memoryStorage()
-const upload = multer({ storage: storage }); 
+// 15MB limit - zyada bada file se connection reset nahi hoga
+const upload = multer({ storage: storage, limits: { fileSize: 15 * 1024 * 1024 } }); 
   
-blog_routes.post('/create',Auth,upload.fields([{name:"images"},{name:"image"}]),Auth,Admin_check,create_blog)
+blog_routes.post('/create', (req, res, next) => {
+  upload.fields([{ name: "images" }, { name: "image" }])(req, res, (err) => {
+    if (err) {
+      console.error("Multer error:", err)
+      return res.status(400).json({ success: false, message: err.code === "LIMIT_FILE_SIZE" ? "File size too large (max 15MB)" : "Upload error" })
+    }
+    next()
+  })
+}, Auth, Admin_check, create_blog)
 blog_routes.put("/update/:id",upload.fields([{name:"images"},{name:"image"}]),Auth,Admin_check,update_blog)
 blog_routes.delete("/delete/:id",Auth,Admin_check,delete_blog)
 blog_routes.get('/single/blog/:id',get_single_blog)

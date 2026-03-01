@@ -1,17 +1,17 @@
 import { Outlet } from "react-router-dom"
 import Login from "../Models/Login"
 import Header from './Hader'
-import { useSelector} from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import Register from "../Models/Register"
 import Cetagory from "../Models/Cetagory"
 import User_profile from "../Models/User_profile"
 import Footer from "./Footer"
 import Comment from '../Models/Comment'
-import { useLogin_userQuery } from "../Redux/Api"
-//  import { Auth_moduls_fnc } from "../Redux/ALL_moduls._Slice"
+import { cetagory_toggle_fnc, user_profile, comment_fnc } from "../Redux/ALL_moduls._Slice"
+
 function Layout() {
+     const dispatch = useDispatch()
      let useslactor=useSelector((state)=>state.All_moduls.Auth_moduls_state)
-     let {data}=useLogin_userQuery()
      let resgiste_toggle_useslactor=useSelector((state)=>state.All_moduls.register_moduls_state)
      let cetagory_toggle_useslactor=useSelector((state)=>state.All_moduls.cetagory_module_state)
      let comment_toggle_useslactor=useSelector((state)=>state.All_moduls.comment_initial_state)
@@ -37,54 +37,79 @@ function Layout() {
 
 
      if (!navigator.onLine) {
-        return(
-            <>
-            <div>
+        return (
+          <div className="min-h-screen bg-brand-surface">
             <Header/>
-                <h3 className="text-center mt-36 font-bold text-[25px]">You are offline in this time</h3>
+            <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+              <div className="bg-white rounded-xl shadow-card p-8 text-center max-w-md">
+                <p className="text-xl font-semibold text-brand-primary">You're offline</p>
+                <p className="text-brand-muted mt-2 text-sm">Please check your connection and try again.</p>
+              </div>
             </div>
-            
-            </>
+          </div>
         )
-        
-     }else{
+     }
+
+  const backdrop = useslactor || resgiste_toggle_useslactor || cetagory_toggle_useslactor || comment_toggle_useslactor || User_profile_state
+
   return (
-    
-    <div className="w-full relative   ">
-        
-        
-        <div className={`flex absolute left-[3%] top-10 bottom-20 justify-center bg-[#FFFFFF]  w-[97%] h-fit ${useslactor?"block":"hidden"} `}>
-            <Login/></div>
-
-        <div className={`flex absolute left-[3%] top-10 bottom-20 justify-center bg-[#FFFFFF]  w-[97%] h-fit ${resgiste_toggle_useslactor?"block":"hidden"} `}>
-            <Register/></div>
-
-        <div className={`flex fixed left-[0%] top-[48.4px] bottom-20 z-10 h-screen     w-fit   ${cetagory_toggle_useslactor?"translate-x-0 duration-300":"-translate-x-[140px] duration-300  "} `}>
-            <div className="overflow-scroll cusSc ">
-            <Cetagory/>
-            </div>
-            </div>
-        <div className={`flex fixed left-[0%] top-[250px] bottom-20 z-10 h-screen   justify-center     w-full   ${comment_toggle_useslactor?"translate-y-0 duration-300":"translate-y-full duration-300  "} `}>
-            <div className=" ">
-            <Comment/>
-            </div>
-            </div>
-            <div className={`flex fixed  top-[48.4px] bottom-20 z-50 h-screen md:left-[90%] lg:left-[100%] left-[78%]    w-fit   ${User_profile_state?"translate-x-0 duration-300":"translate-x-[120px] duration-300  "} `}>
-            <div className="overflow-scroll cusSc ">
-            <User_profile/>
-            </div>
-            </div>
-       
-       <div className={`w-full h-full overflow-hidden  ${useslactor?"opacity-5 pointer-events-none select-none":""}${resgiste_toggle_useslactor?"opacity-15 pointer-events-none select-none ":""} ${cetagory_toggle_useslactor?"fixed   max-h-screen overflow-hidden":""} ${comment_toggle_useslactor?"fixed   max-h-screen overflow-hidden":""} ${User_profile_state?"fixed   max-h-screen overflow-hidden":""}`}>
-       
-          <Header/>
-        <Outlet/>
-        <Footer/>
+    <div className="w-full relative min-h-screen bg-brand-surface">
+      {/* Modal Overlays */}
+      <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity ${useslactor ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animation">
+          <Login/>
         </div>
- 
-     
+      </div>
+      <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity ${resgiste_toggle_useslactor ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+          <Register/>
+        </div>
+      </div>
+
+      {/* Sidebar Backdrop - click to close */}
+      <div 
+        className={`fixed inset-0 z-[45] bg-black/40 transition-opacity duration-300 ${(cetagory_toggle_useslactor || User_profile_state) ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => {
+          if (cetagory_toggle_useslactor) dispatch(cetagory_toggle_fnc(false))
+          if (User_profile_state) dispatch(user_profile())
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Category Sidebar */}
+      <aside className={`fixed top-14 sm:top-16 left-0 bottom-0 z-50 w-[280px] sm:w-72 max-w-[calc(100vw-2rem)] bg-[#0f172a] text-white overflow-y-auto cusSc transition-transform duration-300 ease-out shadow-2xl ${cetagory_toggle_useslactor ? "translate-x-0" : "-translate-x-full"}`}>
+        <Cetagory/>
+      </aside>
+
+      {/* Comment Backdrop */}
+      <div
+        className={`fixed inset-0 z-[45] bg-black/40 transition-opacity duration-300 ${comment_toggle_useslactor ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => dispatch(comment_fnc(false))}
+        aria-hidden="true"
+      />
+      {/* Comment Panel - stop propagation so backdrop doesn't close when clicking panel */}
+      <div
+        className={`fixed inset-x-0 bottom-0 z-50 max-h-[85vh] sm:max-h-[80vh] bg-white rounded-t-2xl shadow-2xl overflow-hidden flex flex-col transition-transform duration-300 ease-out ${comment_toggle_useslactor ? "translate-y-0" : "translate-y-full"}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Comment/>
+      </div>
+
+      {/* User Profile Sidebar */}
+      <aside className={`fixed top-14 sm:top-16 right-0 bottom-0 z-50 w-[280px] sm:w-80 max-w-[calc(100vw-2rem)] bg-white shadow-2xl overflow-y-auto cusSc transition-transform duration-300 ease-out ${User_profile_state ? "translate-x-0" : "translate-x-full"}`}>
+        <User_profile/>
+      </aside>
+
+      {/* Main Content */}
+      <div className={`w-full min-h-screen transition-opacity duration-300 ${backdrop ? "opacity-50 pointer-events-none" : ""}`}>
+        <Header/>
+        <main>
+          <Outlet/>
+        </main>
+        <Footer/>
+      </div>
     </div>
-  )}
+  )
 }
 
 export default Layout

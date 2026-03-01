@@ -3,7 +3,7 @@ import { blogs_api_data, cetagory_api_data, login_user_sl_fn, single_blog_data_f
 
 export let Api=createApi({
     reducerPath:"api",
-    baseQuery:fetchBaseQuery({baseUrl:"https://blogapi.mfaizansari.tech/api/v1/",credentials:"include"}),tagTypes:["user","blog","like","comment","cetagory"],keepUnusedDataFor:24*60*60*1000,
+    baseQuery:fetchBaseQuery({baseUrl:import.meta.env.DEV?"/api/v1/":(import.meta.env.VITE_API_BASE_URL||"https://blogapi.mfaizansari.tech/api/v1/"),credentials:"include"}),tagTypes:["user","blog","like","comment","cetagory"],keepUnusedDataFor:24*60*60*1000,
     
     endpoints:(builder)=>({
         register:builder.mutation({
@@ -206,13 +206,10 @@ export let Api=createApi({
 
 
     delete_comm:builder.mutation({    
-        query:(id,blog_id)=>(   
-                  
-                     
-            {
+        query:({id,blog_id})=>({
             url:`/delete/comment/${id}`,
             method:"Delete",
-            body:blog_id
+            body:{blog_id}
         }),
         invalidatesTags:["blog","cetagory","comment","like","user"],
        

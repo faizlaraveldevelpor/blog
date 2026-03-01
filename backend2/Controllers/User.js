@@ -64,7 +64,12 @@ res.status(200).json({success:true,"message":"user created succssfully"})
         draft:user.draft,
         image:user.image
      }
-    res.cookie("Token",Token,{maxAge:24*60*60*1000}).status(200).json({success:true,"message":"user login successfully",user_data})
+    res.cookie("Token", Token, {
+        maxAge: 24 * 60 * 60 * 1000,
+        path: "/",
+        sameSite: "lax",
+        httpOnly: true
+    }).status(200).json({ success: true, "message": "user login successfully", user_data })
   
 }
 export let logoutUser=async(req,res)=>{

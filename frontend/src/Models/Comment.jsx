@@ -2,106 +2,113 @@ import { IoClose } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { comment_fnc } from "../Redux/ALL_moduls._Slice";
 import { useCommentMutation, useDelete_commMutation } from "../Redux/Api";
-import {useParams} from 'react-router-dom'
-import {  useState } from "react";
-import {toast} from 'react-toastify'
+import { useParams } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "react-toastify";
+
 function Comment() {
-  let local_storage_data=JSON.parse(localStorage.getItem("user"))||[]
-  let [comment_del]=useDelete_commMutation()
-    let disptach=useDispatch()
-    let single_blog_data=useSelector((state)=>state.Api_data_slice.single_blog_data)
-    let [comment_data,setcomment_data]=useState("")
-    let {id}=useParams()
-     let [fnc]=useCommentMutation()
-     
-   let create_comment=()=>{
-    if (local_storage_data) {
-      if (local_storage_data.length==0) {
-        toast.error("please login first")
-      }
+  let local_storage_data = JSON.parse(localStorage.getItem("user")) || {};
+  let [comment_del] = useDelete_commMutation();
+  let disptach = useDispatch();
+  let single_blog_data = useSelector((state) => state.Api_data_slice.single_blog_data);
+  let [comment_data, setcomment_data] = useState({ text: "" });
+  let { id } = useParams();
+  let [fnc] = useCommentMutation();
+
+  let create_comment = () => {
+    if (local_storage_data && (Array.isArray(local_storage_data) ? local_storage_data.length === 0 : !local_storage_data._id && !local_storage_data.id)) {
+      toast.error("Please login first");
+      return;
     }
-     fnc({id,comment_data})
-   
-    setcomment_data({"text":""})
-    
-   }
+    fnc({ id, comment_data });
+    setcomment_data({ text: "" });
+  };
 
+  let delete_comment = (cid, blog_id) => {
+    comment_del({ id: cid, blog_id });
+  };
 
+  let currentUserId = local_storage_data?._id || local_storage_data?.id;
+  const comments = single_blog_data?.blog_get?.comments || [];
 
-// useEffect(()=>{
-//     if (data) {
-//         if (data.success==true) {
-//             console.log("faiz");
-//             return setcomment_data(null)
-            
-//         }
-//     }
-// },[isSuccess])
-
-let delete_comment=(id,blog_id)=>{
-  comment_del(id,blog_id)
-}
-
-
- 
   return (
-    <div className="w-full flex justify-center h-full   ">
-        <div className="border rounded-md bg-slate-50 h-full md:w-[800px] w-[90%] flex justify-center relative ">
-        <div className="absolute md:left-[96%] left-[92%] top-1">
-           <span className="text-[28px] cursor-pointer" onClick={()=>disptach(comment_fnc(false))}>
-           <IoClose/>
-           </span>
-        </div>
-            <div className="md:px-4">
-                <h3 className="text-center mt-5 font-bold text-[25px]  font-semibold]">Comments</h3>
-           <div className="flex items-center flex-wrap justify-center  ">
-           <span>
-                <input type="text" className="md:w-[500px] w-[90%] border outline-none m-5 h-[45px] px-3 rounded-md text-[20px] font-semibold" placeholder="Enter your comment"  value={comment_data.text}  onChange={(e)=>setcomment_data({"text":e.target.value})} />
-              </span>
-              <span>
-              <button className="bg-black text-white h-[40px] px-2 rounded-md text-[17px]" onClick={()=>create_comment()}>Add your comment</button>
-              </span>
-              <div className="w-full md:h-[120px] h-[200px] px-10 mt-2 overflow-y-scroll cusSc    ">
-               {
-                single_blog_data &&
-                single_blog_data?.blog_get?.comments.map((data)=>{
-                  console.log(data);
-                  
-                    return(
-                        <>
-              
-                       <div className="mb-6">
+    <div className="w-full min-h-0 flex flex-col">
+      {/* Handle bar */}
+      <div className="flex-shrink-0 flex justify-center pt-2 pb-1">
+        <div className="w-10 h-1 rounded-full bg-slate-200" aria-hidden="true" />
+      </div>
 
-                       <div className=" flex  items-center justify-between w-full ">
-                         <div className="flex items-center gap-2">
-                         <span><img src={local_storage_data?.image} alt="img" className="w-[40px] h-[40px] rounded-full object-cover" /></span>
-                         <span><h3>{data?.user?.name}</h3></span>
-                         </div>
-                         <div className={`${data.user._id==local_storage_data.id?"block":"hidden"}`} onClick={()=>delete_comment(data._id,data.blog)}>
-                          <button className="w-[100px] bg-black text-white rounded-lg">Delete</button>
-                         </div>
-                      </div>
-                     
-                      <div className="mt-3">
-                      <span>
-                          <h3>{data?.text}</h3>
-                      </span>
-                      </div>
+      {/* Header */}
+      <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 pb-4 border-b border-slate-200">
+        <h2 className="text-lg sm:text-xl font-bold text-brand-primary">Comments</h2>
+        <button
+          onClick={() => disptach(comment_fnc(false))}
+          className="p-2 -m-2 rounded-full text-slate-500 hover:bg-slate-100 hover:text-brand-primary transition-colors touch-manipulation"
+          aria-label="Close comments"
+        >
+          <IoClose className="text-2xl sm:text-[28px]" />
+        </button>
+      </div>
 
-                       </div>
-                        
-                        </>
-                    )
-                })
-            
-               }
-            </div>
-           </div>
-            </div>
-            
+      {/* Input area */}
+      <div className="flex-shrink-0 px-4 sm:px-6 py-4 bg-brand-surface">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
+          <input
+            type="text"
+            className="flex-1 min-w-0 h-11 sm:h-12 px-4 rounded-xl border border-slate-200 bg-white text-base sm:text-lg placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent transition-shadow"
+            placeholder="Write a comment..."
+            value={comment_data?.text ?? ""}
+            onChange={(e) => setcomment_data({ text: e.target.value })}
+            onKeyDown={(e) => e.key === "Enter" && create_comment()}
+          />
+          <button
+            onClick={create_comment}
+            className="h-11 sm:h-12 px-5 sm:px-6 rounded-xl bg-brand-accent text-white font-semibold text-sm sm:text-base hover:bg-brand-accent-hover transition-colors whitespace-nowrap touch-manipulation"
+          >
+            Post
+          </button>
         </div>
+      </div>
+
+      {/* Comments list */}
+      <div className="flex-1 min-h-0 overflow-y-auto cusSc px-4 sm:px-6 py-4">
+        {comments.length === 0 ? (
+          <p className="text-center text-brand-muted py-8 text-sm sm:text-base">No comments yet. Be the first to comment!</p>
+        ) : (
+          <div className="space-y-4">
+            {comments.map((data) => (
+              <div
+                key={data._id}
+                className="flex gap-3 p-4 rounded-xl bg-white border border-slate-100 shadow-soft"
+              >
+                <img
+                  src={data?.user?.image || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + (data?.user?.name || "user")}
+                  alt=""
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="font-semibold text-brand-primary text-sm sm:text-base">
+                      {data?.user?.name || "Anonymous"}
+                    </span>
+                    {data?.user?._id === currentUserId && (
+                      <button
+                        onClick={() => delete_comment(data._id, data.blog)}
+                        className="text-red-500 hover:text-red-600 text-xs sm:text-sm font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-slate-600 text-sm sm:text-base mt-1 break-words">{data?.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
-  )
+  );
 }
 
-export default Comment
+export default Comment;

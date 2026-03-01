@@ -1,103 +1,206 @@
-import Image from '../../assets/8cce5d86-5844-44ac-b2ba-dcdd7fa4173a-removebg-preview.png'
-import Image2 from '../../assets/28d70ff8-8bcb-4dc9-9241-fb452697bb39-removebg-preview.png'
-// import Image3 from '../../assets/7656fdb1-8b6c-49f8-9a3f-0b834b953bca-removebg-preview.png'
-import Image4 from '../../assets/speech_bubble_001g_09-removebg-preview.png'
-import Image5 from '../../assets/127-removebg-preview.png'
-import Admin_home_page_part2 from "./Admin_home_page_part2";
-import { useBlogsQuery } from "../../Redux/Api";
+import { useBlogsQuery, useAll_usersQuery } from "../../Redux/Api";
+import StatsCard from "../../Components/shared/StatsCard";
+import { LineChart, BarChart, PieChart } from "../../Components/shared/Chart";
+import BlogCard from "../../Components/shared/BlogCard";
+import Avatar from "../../Components/shared/Avatar";
+import Badge from "../../Components/shared/Badge";
+import { 
+  HiDocumentText, 
+  HiChatBubbleLeftRight, 
+  HiHeart, 
+  HiUsers,
+  HiArrowTrendingUp,
+  HiClock,
+} from "react-icons/hi2";
+import { 
+  processDataForLineChart, 
+  processCategoryData, 
+  processEngagementData,
+  getTopPerformingBlogs,
+  calculateTrend
+} from "../../utils/chartHelpers";
+import { Link } from "react-router-dom";
+
 function Admin_Home_page() {
-    let {data}=useBlogsQuery()  
-    let comments=[]
-    data?.get_blog&&
-    data?.get_blog.forEach((data)=>{
-if (data?.comments) {
-  let collect=  data?.comments.length
-   comments.push(collect)
- 
-}
+  const { data: blogsData, isLoading: blogsLoading } = useBlogsQuery();
+  const { data: usersData } = useAll_usersQuery();
+  
+  const blogs = blogsData?.get_blog || [];
+  const users = usersData?.data || [];
 
+  // Calculate stats
+  const totalBlogs = blogs.length;
+  const totalComments = blogs.reduce((sum, blog) => sum + (blog.comments?.length || 0), 0);
+  const totalLikes = blogs.reduce((sum, blog) => sum + (blog.likes?.length || 0), 0);
+  const totalUsers = users.length;
 
-    })
+  // Get recent data (last 7 days)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const recentBlogs = blogs.filter(blog => new Date(blog.createdAt) > sevenDaysAgo).length;
+  const previousBlogs = totalBlogs - recentBlogs;
 
-let push_inArray_comments= comments.filter((data)=>data>0)
-let all_comments=0
-for (let i = 0; i < push_inArray_comments.length; i++) {
- 
-    all_comments+=push_inArray_comments[i]
-}
+  // Calculate trends
+  const blogTrend = calculateTrend(recentBlogs, previousBlogs);
+  
+  // Chart data
+  const blogActivityData = processDataForLineChart(blogs, 'createdAt', 30);
+  const categoryData = processCategoryData(blogs);
+  const engagementData = processEngagementData(blogs);
+  const topBlogs = getTopPerformingBlogs(blogs, 'likes', 5);
 
-
+  // Recent activity
+  const recentComments = blogs
+    .flatMap(blog => 
+      (blog.comments || []).map(comment => ({ ...comment, blogTitle: blog.title, blogId: blog._id }))
+    )
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
 
   return (
-    <div>
-        
-        <div className="bg-[#F7F8FA]">
-        <div className="pt-4 md:px-24 px-20 ">
-        <div className="flex items-center justify-between">
-       <div className="flex items-center">
-       </div>
-        <div>
-     
+    <div className="min-h-screen p-6 md:p-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-brand-primary mb-2">Dashboard</h1>
+        <p className="text-brand-muted">Welcome back! Here's what's happening with your blog.</p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatsCard
+          title="Total Blogs"
+          value={totalBlogs}
+          icon={HiDocumentText}
+          trend={blogTrend.trend}
+          trendValue={blogTrend.value}
+          color="accent"
+          loading={blogsLoading}
+        />
+        <StatsCard
+          title="Comments"
+          value={totalComments}
+          icon={HiChatBubbleLeftRight}
+          color="primary"
+          loading={blogsLoading}
+        />
+        <StatsCard
+          title="Total Likes"
+          value={totalLikes}
+          icon={HiHeart}
+          color="error"
+          loading={blogsLoading}
+        />
+        <StatsCard
+          title="Users"
+          value={totalUsers}
+          icon={HiUsers}
+          color="success"
+        />
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Blog Activity Chart */}
+        <div className="card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <HiArrowTrendingUp className="text-brand-accent text-xl" />
+            <h2 className="text-lg font-bold text-brand-primary">Blog Activity</h2>
+          </div>
+          <p className="text-sm text-brand-muted mb-4">Posts published over the last 30 days</p>
+          <LineChart data={blogActivityData} title="Blogs" height={250} />
         </div>
-        </div>   
-        <div className="mt-10 "><span className="font-semibold text-black text-[30px]  ">WELCOME BACK</span>
-       
+
+        {/* Category Distribution */}
+        <div className="card p-6">
+          <h2 className="text-lg font-bold text-brand-primary mb-4">Category Distribution</h2>
+          <p className="text-sm text-brand-muted mb-4">Posts by category</p>
+          <BarChart data={categoryData} title="Posts" height={250} />
         </div>
-        <div className="flex md:flex-row flex-col  mt-10">
-            
-        <div className="mb-20 md:w-[30%]  ">
-            <div className="  flex flex-col-reverse    bg-slate-200 rounded-lg shadow-2xl border-2  pt-5 ">
-            <span className=" w-[200px] h-[150px] ">
-                <img src={Image} alt="img" />
-            </span>
-            <span className="font-bold md:text-[18px] text-[12px] text-gray-500  bg-slate-100 rounded-l-md min-w-full pl-2 text-center">Faiz ansari</span>
-          
+      </div>
+
+      {/* Engagement & Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Engagement Pie Chart */}
+        <div className="card p-6">
+          <h2 className="text-lg font-bold text-brand-primary mb-4">Engagement</h2>
+          <PieChart data={engagementData} height={250} />
+        </div>
+
+        {/* Recent Comments */}
+        <div className="card p-6 lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <HiClock className="text-brand-accent text-xl" />
+              <h2 className="text-lg font-bold text-brand-primary">Recent Comments</h2>
             </div>
+            <Link to="/all/comments" className="text-sm text-brand-accent hover:text-brand-accent-hover font-semibold">
+              View All
+            </Link>
+          </div>
+          <div className="space-y-4">
+            {recentComments.length === 0 ? (
+              <p className="text-brand-muted text-sm text-center py-8">No comments yet</p>
+            ) : (
+              recentComments.map((comment, idx) => (
+                <div key={idx} className="flex gap-3 pb-4 border-b border-slate-100 last:border-0">
+                  <Avatar src={comment.user?.image} alt={comment.user?.name} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-semibold text-brand-primary">{comment.user?.name}</p>
+                      <span className="text-xs text-brand-muted">•</span>
+                      <p className="text-xs text-brand-muted">
+                        {new Date(comment.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <p className="text-sm text-brand-muted line-clamp-2 mb-1">{comment.text}</p>
+                    <Link 
+                      to={`/single/blog/${comment.blogId}`}
+                      className="text-xs text-brand-accent hover:text-brand-accent-hover"
+                    >
+                      on "{comment.blogTitle?.substring(0, 50)}{comment.blogTitle?.length > 50 ? '...' : ''}"
+                    </Link>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-        <div>
-        <div className="mb-20 md:ml-12">
-            <div className="  flex flex-col-reverse  bg-slate-200 rounded-lg shadow-md border  pt-5 ">
-            <span className=" w-[180px] h-[100px]  ">
-                <img src={Image2} alt='' className="w-full h-fit" />
-            </span>
-            <span className="font-bold md:text-[18px] flex justify-between text-[12px] items-center text-gray-500 pr-8 bg-slate-100 rounded-l-md h-fit pl-2"><h3 >Total blogs</h3> <p className="text-[14px] ">({data?.get_blog?.length})</p></span>
-          
-            </div>
+      </div>
+
+      {/* Top Performing Posts */}
+      <div className="card p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-bold text-brand-primary">Top Performing Posts</h2>
+          <Badge variant="primary">Most Liked</Badge>
         </div>
-        </div>
-        <div>
-        <div className="mb-20 md:ml-12 md:w-[240px]">
-            <div className="  flex-col-reverse flex    bg-slate-200 rounded-lg  shadow-md border  pt-5   ">
-            <span className=" w-[120px] h-[100px] flex justify-center ">
-                <img src={Image4} alt='' className="w-full h-fit" />
-            </span>
-            <span className="font-bold md:text-[18px] flex justify-between text-[12px] items-center text-gray-500 pr-8 bg-slate-100 rounded-l-md h-fit pl-2"><h3 >Total comments</h3> <p className="text-[14px] ">{all_comments}</p></span>
-          
-            </div>
-        </div>
-        </div>
-        <div>
-        <div className="mb-20 md:ml-12 md:w-[240px]">
-            <div className="  flex-col-reverse flex    bg-slate-200 rounded-lg shadow-md border  pt-5   ">
-            <span className=" w-[120px] h-[100px] flex justify-center ">
-             <span>
-             <img src={Image5} alt='' className="w-full h-full" />
-             </span>
-            </span>
-            <span className="font-bold md:text-[18px] flex justify-between items-center text-[12px] text-gray-500 pr-8 bg-slate-100 rounded-l-md h-fit pl-2"><h3>Total Like</h3> <p className="text-[14px] ml-5">10202</p></span>
-          
-            </div>
-        </div>
-        </div>
-        <div>
-     
-        </div>
-        </div> 
-        </div> 
-        <Admin_home_page_part2/>
-        </div>
+        {topBlogs.length === 0 ? (
+          <p className="text-brand-muted text-center py-8">No blogs yet</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            {topBlogs.map((blog) => (
+              <BlogCard key={blog._id} blog={blog} variant="grid" showAuthor={false} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <Link to="/create/blog" className="btn-primary text-center">
+          Create New Blog
+        </Link>
+        <Link to="/All_blogs/admin" className="btn-secondary text-center">
+          Manage Blogs
+        </Link>
+        <Link to="/create/cetagory" className="btn-outline text-center">
+          Add Category
+        </Link>
+        <Link to="/users" className="btn-ghost text-center">
+          Manage Users
+        </Link>
+      </div>
     </div>
-  )
+  );
 }
 
-export default Admin_Home_page
+export default Admin_Home_page;
